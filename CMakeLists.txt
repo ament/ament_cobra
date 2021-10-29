@@ -14,7 +14,7 @@ ExternalProject_Add(cobra-3.6
   PREFIX cobra-3.6
   GIT_REPOSITORY https://github.com/nimble-code/cobra
   GIT_TAG ab06e676f9123ec07011a09c38daffaa4fbfdc60
-  INSTALL_DIR <SOURCE_DIR>/cobra_install
+  INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/cobra_install"
   BUILD_IN_SOURCE TRUE
   CONFIGURE_COMMAND ""
   BUILD_COMMAND
