@@ -25,6 +25,7 @@ ExternalProject_Add(cobra-3.6
 
 install(PROGRAMS
   ${CMAKE_CURRENT_BINARY_DIR}/cobra-3.6/src/cobra-3.6/bin_linux/cobra
+  ${CMAKE_CURRENT_BINARY_DIR}/cobra-3.6/src/cobra-3.6/bin_linux/cwe
   DESTINATION bin)
 
 install(DIRECTORY 
