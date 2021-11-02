@@ -100,9 +100,10 @@ def main(argv=sys.argv[1:]):
 
     args = parser.parse_args(argv)
 
-    cobra_bin = find_executable('cobra')
+    target_binary = 'cobra' if args.ruleset != 'cwe' else 'cwe'
+    cobra_bin = find_executable(target_binary)
     if not cobra_bin:
-        print("Error: Could not find the 'cobra' executable", file=sys.stderr)
+        print(f"Error: Could not find the '{target_binary}' executable", file=sys.stderr)
         return 1
 
     cobra_version = get_cobra_version(cobra_bin)
