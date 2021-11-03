@@ -26,6 +26,9 @@ ExternalProject_Add(cobra-3.6
 install(PROGRAMS
   ${CMAKE_CURRENT_BINARY_DIR}/cobra-3.6/src/cobra-3.6/bin_linux/cobra
   ${CMAKE_CURRENT_BINARY_DIR}/cobra-3.6/src/cobra-3.6/bin_linux/cwe
+  ${CMAKE_CURRENT_BINARY_DIR}/cobra-3.6/src/cobra-3.6/bin_linux/scope_check
+  ${CMAKE_CURRENT_BINARY_DIR}/cobra-3.6/src/cobra-3.6/bin_linux/find_taint
+  ${CMAKE_CURRENT_BINARY_DIR}/cobra-3.6/src/cobra-3.6/bin_linux/window.tcl
   DESTINATION bin)
 
 install(DIRECTORY 
