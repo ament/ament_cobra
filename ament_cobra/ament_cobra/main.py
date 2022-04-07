@@ -511,5 +511,4 @@ def write_sarif_file(sarif_file, report, duration, ruleset, skip=None):
 
 
 if __name__ == '__main__':
-    print('HERE2')
     sys.exit(main())
