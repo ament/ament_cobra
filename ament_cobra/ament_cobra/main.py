@@ -480,30 +480,33 @@ def write_sarif_file(sarif_file, report, duration, ruleset, skip=None):
     folder_name = os.path.basename(os.path.dirname(sarif_file))
     file_name = os.path.basename(sarif_file)
 
-    input_filename_map = {
+    # Unfortunately, the cwe and misra2012 rulesets are not outputting a JSON file
+    # Issue submitted here: https://github.com/nimble-code/Cobra/issues/50
+
+    # The output names are also not consistent. Fix submitted here:
+    # https://github.com/nimble-code/Cobra/pull/47
+
+    ruleset_to_filename = {
         'basic': '_Basic_.txt', # OK
-        'cwe': None,            # Issue with Cobra: no text output in this case
-        'p10': '_P10.txt',      # OK
+        'cwe': None,            # No output JSON to work with (need #50 fixed)
+        'p10': '_P10_.txt',     # OK (with fix #47)
         'jpl': '_JPL_.txt',     # OK
-        'misra2012': None,      # Issue with Cobra: no text output in this case
+        'misra2012': None,      # No output JSON to work with (need #50 fixed)
     }
 
-    if input_filename_map[ruleset] is None:
-        print(f"Can't generate SARIF file: no input file for ruleset: {ruleset}")
-        return 0
+    if ruleset_to_filename[ruleset] is None:
+        print(f"Can't generate SARIF file: no input file for ruleset: {ruleset}", file=sys.stderr)
+        return 1
 
-    # Cobra uses a "_<upper-ruleset-name>_.txt" naming convention for its output file,
-    # which is the input file for the JSON-to-SARIF conversion
-    input_filename = os.path.join(folder_name, input_filename_map[ruleset])
-
-    cmd = ['json_convert', '-sarif', '-f', input_filename]
     try:
+        input_filename = os.path.join(folder_name, ruleset_to_filename[ruleset])
+        cmd = ['json_convert', '-sarif', '-f', input_filename]
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         cmd_output = p.communicate()[0]
         with open(sarif_file, 'w') as f:
             f.write(cmd_output.decode("utf-8"))
     except subprocess.CalledProcessError as e:
-        print("'json_convert' failed with error code %d: %s" % (e.returncode, e), file=sys.stderr)
+        print("'json_convert' failed with error code {e.returncode}: {e}", file=sys.stderr)
         return 1
 
 
