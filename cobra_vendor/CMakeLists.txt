@@ -24,7 +24,7 @@ ExternalProject_Add(cobra-${VER}
   BUILD_COMMAND
   ${CMAKE_COMMAND} -E chdir <SOURCE_DIR>/src make linux && ${CMAKE_COMMAND} -E chdir <SOURCE_DIR>/src_app make all
   INSTALL_COMMAND
-  ${CMAKE_COMMAND} -E chdir <SOURCE_DIR>/src make install_linux && ${CMAKE_COMMAND} -E chdir <SOURCE_DIR>/src_app make install_linux
+  ${CMAKE_COMMAND} -E chdir <SOURCE_DIR>/src make install_linux MAN=<SOURCE_DIR>/src_app && ${CMAKE_COMMAND} -E chdir <SOURCE_DIR>/src_app make install_linux
 )
 
 install(PROGRAMS
