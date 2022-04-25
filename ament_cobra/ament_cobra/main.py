@@ -42,7 +42,7 @@ def get_cobra_version(cobra_bin):
 
 def main(argv=sys.argv[1:]):
     extensions = ['c', 'cc', 'cpp', 'cxx']
-    basic_args = ['-C++', '-comments']
+    basic_args = ['-C++', '-comments', '-json']
 
     # The Cobra rulesets
     rulesets = ['basic', 'cwe', 'p10', 'jpl', 'misra2012']
@@ -89,6 +89,9 @@ def main(argv=sys.argv[1:]):
     parser.add_argument(
         '--xunit-file',
         help='Generate a xunit compliant XML file')
+    parser.add_argument(
+        '--sarif-file',
+        help='Generate a SARIF file')
     parser.add_argument(
         '--cobra-version',
         action='store_true',
@@ -161,8 +164,7 @@ def main(argv=sys.argv[1:]):
     # Initialize the output report
     report = defaultdict(list)
 
-    if args.xunit_file:
-        start_time = time.time()
+    start_time = time.time()
 
     # For each group of files
     for group_name in sorted(groups.keys()):
@@ -198,9 +200,15 @@ def main(argv=sys.argv[1:]):
         print('%d errors' % error_count, file=sys.stderr)
         rc = 1
 
+    elapsed_time = time.time() - start_time
+
     # Generate the xunit output file
     if args.xunit_file:
-        write_xunit_file(args.xunit_file, report, time.time() - start_time)
+        write_xunit_file(args.xunit_file, report, elapsed_time)
+
+    # Generate the SARIF output file
+    if args.sarif_file:
+        write_sarif_file(args.sarif_file, report, elapsed_time, args.ruleset)
 
     return rc
 
@@ -466,6 +474,40 @@ def write_xunit_file(xunit_file, report, duration, skip=None):
         os.makedirs(path)
     with open(xunit_file, 'w') as f:
         f.write(xml)
+
+
+def write_sarif_file(sarif_file, report, duration, ruleset, skip=None):
+    folder_name = os.path.basename(os.path.dirname(sarif_file))
+    file_name = os.path.basename(sarif_file)
+
+    # Unfortunately, the cwe and misra2012 rulesets are not outputting a JSON file
+    # Issue submitted here: https://github.com/nimble-code/Cobra/issues/50
+
+    # The output names are also not consistent. Fix submitted here:
+    # https://github.com/nimble-code/Cobra/pull/47
+
+    ruleset_to_filename = {
+        'basic': '_Basic_.txt', # OK
+        'cwe': None,            # No output JSON to work with (need #50 fixed)
+        'p10': '_P10_.txt',     # OK (with fix #47)
+        'jpl': '_JPL_.txt',     # OK
+        'misra2012': None,      # No output JSON to work with (need #50 fixed)
+    }
+
+    if ruleset_to_filename[ruleset] is None:
+        print(f"Can't generate SARIF file: no input file for ruleset: {ruleset}", file=sys.stderr)
+        return 1
+
+    try:
+        input_filename = os.path.join(folder_name, ruleset_to_filename[ruleset])
+        cmd = ['json_convert', '-sarif', '-f', input_filename]
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        cmd_output = p.communicate()[0]
+        with open(sarif_file, 'w') as f:
+            f.write(cmd_output.decode("utf-8"))
+    except subprocess.CalledProcessError as e:
+        print("'json_convert' failed with error code {e.returncode}: {e}", file=sys.stderr)
+        return 1
 
 
 if __name__ == '__main__':
