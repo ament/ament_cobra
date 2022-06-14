@@ -45,7 +45,7 @@ def main(argv=sys.argv[1:]):
     basic_args = ['-C++', '-comments', '-json']
 
     # The Cobra rulesets
-    rulesets = ['basic', 'cwe', 'p10', 'jpl', 'misra2012']
+    rulesets = ['basic', 'cwe', 'p10', 'jpl', 'misra2012', 'autosar']
 
     # Some rulesets may require additional arguments
     associated_args = {
@@ -53,7 +53,8 @@ def main(argv=sys.argv[1:]):
         'cwe': [],
         'p10': [],
         'jpl': [],
-        'misra2012': ['-cpp']
+        'misra2012': ['-cpp'],
+        'autosar': ['-cpp'],
     }
 
     # Define and parse the command-line options
@@ -79,7 +80,7 @@ def main(argv=sys.argv[1:]):
     parser.add_argument(
         '--ruleset',
         default='basic',
-        help='The cobra rule set to use to analyze the code: basic, cwe, p10, jpl, or misra2012.')
+        help=f'The cobra rule set to use to analyze the code: {", ".join(rulesets)}.')
     parser.add_argument(
         '--compile_cmds',
         help='The compile_commands.json file from which to gather preprocessor directives. This '
