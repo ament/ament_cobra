@@ -77,4 +77,6 @@ if(_source_files)
     EXCLUDE ${_all_exclude} COMPILE_CMDS ${_compile_commands})
   ament_cobra(TESTNAME "cobra-misra2012" RULESET "misra2012" INCLUDE_DIRS ${_all_include_dirs}
     EXCLUDE ${_all_exclude} COMPILE_CMDS ${_compile_commands})
+  ament_cobra(TESTNAME "cobra-autosar" RULESET "autosar" INCLUDE_DIRS ${_all_include_dirs}
+    EXCLUDE ${_all_exclude} COMPILE_CMDS ${_compile_commands})
 endif()
