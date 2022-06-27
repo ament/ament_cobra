@@ -40,7 +40,7 @@ def main(argv=sys.argv[1:]):
     basic_args = ['-C++', '-comments', '-json']
 
     # The Cobra rulesets
-    rulesets = ['basic', 'cwe', 'p10', 'jpl', 'misra2012', 'autosar']
+    rulesets = ['basic', 'cwe', 'p10', 'jpl', 'misra2012', 'C++/autosar']
 
     # Some rulesets may require additional arguments. There are currently no extra
     # arguments, but leave this here for now, to allow for convenient experiementation.
@@ -50,7 +50,7 @@ def main(argv=sys.argv[1:]):
         'p10': [],
         'jpl': [],
         'misra2012': [],
-        'autosar': [],
+        'C++/autosar': [],
     }
 
     # Define and parse the command-line options
@@ -120,7 +120,7 @@ def main(argv=sys.argv[1:]):
 
     # If the user has provided a valid ruleset with --ruleset, add it
     if args.ruleset in rulesets:
-        cmd.extend(['-f', args.ruleset if args.ruleset != 'autosar' else 'C++/autosar'])
+        cmd.extend(['-f', args.ruleset])
         cmd.extend(associated_args[args.ruleset])
     else:
         print(f'Error: Invalid ruleset specified: {args.ruleset}', file=sys.stderr)
@@ -198,7 +198,7 @@ def main(argv=sys.argv[1:]):
         'p10': '_P10_.txt',
         'jpl': '_JPL_.txt',
         'misra2012': '_Misra2012_.txt',
-        'autosar': '_Autosar_.txt',
+        'C++/autosar': '_Autosar_.txt',
     }
 
     input_filename = ruleset_to_filename[args.ruleset]
