@@ -11,7 +11,7 @@ endif()
 
 # The Cobra source code version/revision numbers
 set(VER "4.0")
-set(REV "d2574d0cc6608e22e3c68f92e392d1f293cb043e")
+set(REV "c1c994ab48e984ed4480efab4cf77448679553ca")
 
 include(ExternalProject)
 ExternalProject_Add(cobra-${VER}
