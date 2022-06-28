@@ -67,16 +67,6 @@ if(_source_files)
   message(STATUS "Configured cobra include dirs: ${_all_include_dirs}")
   message(STATUS "Configured cobra exclude dirs and/or files: ${_all_exclude}")
 
-  ament_cobra(TESTNAME "cobra-basic" RULESET "basic" INCLUDE_DIRS ${_all_include_dirs}
-    EXCLUDE ${_all_exclude} COMPILE_CMDS ${_compile_commands})
-  ament_cobra(TESTNAME "cobra-cwe" RULESET "cwe" INCLUDE_DIRS ${_all_include_dirs}
-    EXCLUDE ${_all_exclude} COMPILE_CMDS ${_compile_commands})
-  ament_cobra(TESTNAME "cobra-p10" RULESET "p10" INCLUDE_DIRS ${_all_include_dirs}
-    EXCLUDE ${_all_exclude} COMPILE_CMDS ${_compile_commands})
-  ament_cobra(TESTNAME "cobra-jpl" RULESET "jpl" INCLUDE_DIRS ${_all_include_dirs}
-    EXCLUDE ${_all_exclude} COMPILE_CMDS ${_compile_commands})
-  ament_cobra(TESTNAME "cobra-misra2012" RULESET "misra2012" INCLUDE_DIRS ${_all_include_dirs}
-    EXCLUDE ${_all_exclude} COMPILE_CMDS ${_compile_commands})
-  ament_cobra(TESTNAME "cobra-autosar" RULESET "autosar" INCLUDE_DIRS ${_all_include_dirs}
+  ament_cobra(TESTNAME "cobra-autosar" RULESET "C++/autosar" INCLUDE_DIRS ${_all_include_dirs}
     EXCLUDE ${_all_exclude} COMPILE_CMDS ${_compile_commands})
 endif()

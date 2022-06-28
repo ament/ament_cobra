@@ -355,7 +355,7 @@ def append_file_to_group(groups, path):
 def write_output_file(input_filename, conversion_flag, output_filename):
     folder_name = os.path.basename(os.path.dirname(output_filename))
     try:
-        cmd = ['json_convert', conversion_flag, '-f', os.path.join(folder_name, input_filename)]
+        cmd = ['json_convert', conversion_flag, '-f', input_filename]
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         cmd_output = p.communicate()[0]
         with open(output_filename, 'w') as f:
