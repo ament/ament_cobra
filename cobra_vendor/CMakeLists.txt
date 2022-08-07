@@ -10,8 +10,8 @@ if(DEFINED CMAKE_BUILD_TYPE)
 endif()
 
 # The Cobra source code version/revision numbers
-set(VER "4.0")
-set(REV "c1c994ab48e984ed4480efab4cf77448679553ca")
+set(VER "4.1")
+set(REV "09a5e421bfa7b84d5fca651d3ae3a93e7c30389f")
 
 include(ExternalProject)
 ExternalProject_Add(cobra-${VER}
