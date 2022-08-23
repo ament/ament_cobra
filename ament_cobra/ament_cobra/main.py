@@ -190,7 +190,7 @@ def main(argv=sys.argv[1:]):
         print('%d errors' % error_count, file=sys.stderr)
         rc = 1
 
-    # Unfortunately, the cwe and misra2012 rulesets are not outputting a JSON file
+    # Unfortunately, the CWE ruleset is not outputting a JSON file
     # Issue submitted here: https://github.com/nimble-code/Cobra/issues/50
     ruleset_to_filename = {
         'basic': '_Basic_.txt',
@@ -204,19 +204,30 @@ def main(argv=sys.argv[1:]):
     input_filename = ruleset_to_filename[args.ruleset]
 
     if (args.xunit_file or args.sarif_file) and input_filename is None:
-        print("Can't generate SARIF and/or JUnit XML output: "
-              f"no input file for ruleset: {args.ruleset}", file=sys.stderr)
+        # When using the CWE ruleset, Cobra doesn't generate an output file
+        print(
+            "Can't generate SARIF and/or JUnit XML output: "
+            f"no input file for ruleset: {args.ruleset}",
+            file=sys.stderr)
     else:
-        # Generate the xunit output file
-        if args.xunit_file:
-            write_output_file(input_filename, '-junit', args.xunit_file)
+        if not os.path.isfile(input_filename):
+            # Cobra doesn't produce an output file if there are no issues. So, in
+            # this case, write any output files in the appropriate format w/ no issues
+            if args.xunit_file:
+                write_empty_xunit_file(args.xunit_file,
+                                       get_input_filenames(groups))
 
-        # Generate the SARIF output file
-        if args.sarif_file:
-            write_output_file(input_filename, '-sarif', args.sarif_file)
+            if args.sarif_file:
+                write_empty_sarif_file(args.sarif_file,
+                                       get_input_filenames(groups), cobra_version)
+        else:
+            # Generate the xunit output file
+            if args.xunit_file:
+                write_output_file(input_filename, '-junit', args.xunit_file)
 
-        # Remove the intermediate JSON results file (like '_Autosar_.txt')
-        os.remove(input_filename)
+            # Generate the SARIF output file
+            if args.sarif_file:
+                write_output_file(input_filename, '-sarif', args.sarif_file)
 
     return rc
 
@@ -352,6 +363,15 @@ def append_file_to_group(groups, path):
     groups[root].append(path)
 
 
+def get_input_filenames(groups):
+    filenames = []
+    for group_name in sorted(groups.keys()):
+        files_in_group = groups[group_name]
+        for filename in files_in_group:
+            filenames.append(filename)
+    return filenames
+
+
 def write_output_file(input_filename, conversion_flag, output_filename):
     folder_name = os.path.basename(os.path.dirname(output_filename))
     try:
@@ -362,6 +382,62 @@ def write_output_file(input_filename, conversion_flag, output_filename):
             f.write(cmd_output.decode("utf-8"))
     except subprocess.CalledProcessError as e:
         print(f"'json_convert' failed with error code {e.returncode}: {e}", file=sys.stderr)
+
+
+def write_empty_xunit_file(output_filename, input_filenames):
+    """Write a JUnit XML file with no detected issues."""
+
+    base_name = os.path.basename(os.path.splitext(output_filename)[0])
+    num_tests = len(input_filenames)
+
+    with open(output_filename, 'w') as output_file:
+        output = [
+            f'<xml version="1.0" encoding="UTF-8"?>',
+            f'<testsuite name=".{base_name}" tests="{num_tests}" errors="0" failures="0" skipped="0" >',
+        ]
+
+        # Write a testcase for each source file
+        for filename in input_filenames:
+            output.append(
+                f'  <testcase name="{filename}" classname=".{base_name}"/>')
+        output.append('</testsuite>')
+        output_file.write('\n'.join(output))
+
+
+def write_empty_sarif_file(output_filename, input_filenames, cobra_version):
+    """Write a SARIF file with no detected issues."""
+
+    empty_sarif = {
+        "version":
+        "2.1.0",
+        "$schema":
+        "http://json.schemastore.org/sarif-2.1.0-rtm.5",
+        "runs": [{
+            "tool": {
+                "driver": {
+                    "name": "Cobra",
+                    "version": cobra_version,
+                    "informationUri": "https://github.com/nimble-code/Cobra",
+                    "rules": []
+                }
+            },
+            "artifacts": [],
+            "results": []
+        }]
+    }
+
+    # Add an artifacts entry for each source file
+    for filename in input_filenames:
+        empty_sarif['runs'][0]['artifacts'].append({
+            "location": {
+                'uri': os.path.relpath(filename, os.getcwd()),
+                'uriBaseId': os.getcwd(),
+            }
+        })
+
+    # Write the dictionary to a SARIF file
+    with open(output_filename, 'w') as output_file:
+        output_file.write(json.dumps(empty_sarif, indent=2))
 
 
 if __name__ == '__main__':
