@@ -160,36 +160,6 @@ def main(argv=sys.argv[1:]):
 
     error_count = 0
 
-    # For each group of files
-    for group_name in sorted(groups.keys()):
-        files_in_group = groups[group_name]
-
-        # If a compile_commands.json is provided, process each source file
-        # separately, with its associated preprocessor directives
-        if args.compile_cmds:
-            for filename in files_in_group:
-                if filename in options_map and options_map[filename]['options']:
-                    arguments = cmd + options_map[filename]['options'] + [filename]
-                else:
-                    arguments = cmd + [filename]
-
-                error_count += invoke_cobra(arguments, args.verbose)
-        # Otherwise, run Cobra on this group of files
-        else:
-            arguments = cmd
-            for include_dir in (args.include_dirs or []):
-                cmd.extend(['-I' + include_dir])
-            arguments.extend(files_in_group)
-            error_count += invoke_cobra(arguments, args.verbose)
-
-    # Output a summary
-    if not error_count:
-        print('No problems found')
-        rc = 0
-    else:
-        print('%d errors' % error_count, file=sys.stderr)
-        rc = 1
-
     # Unfortunately, the CWE ruleset is not outputting a JSON file
     # Issue submitted here: https://github.com/nimble-code/Cobra/issues/50
     ruleset_to_filename = {
@@ -202,6 +172,54 @@ def main(argv=sys.argv[1:]):
     }
 
     input_filename = ruleset_to_filename[args.ruleset]
+
+    # Remove old input_filename, if it exists.
+    try:
+        os.remove(input_filename)
+    except OSError:
+        pass
+
+    # Temporary file to aggregate results from intermediate `input_filename` files
+    combined_output_filename = "combined_output.txt"
+
+    # For each group of files
+    for i,group_name in enumerate(sorted(groups.keys())):
+        files_in_group = groups[group_name]
+
+        # If a compile_commands.json is provided, process each source file
+        # separately, with its associated preprocessor directives
+        if args.compile_cmds:
+            for filename in files_in_group:
+                if filename in options_map and options_map[filename]['options']:
+                    arguments = cmd + options_map[filename]['options'] + [filename]
+                else:
+                    arguments = cmd + [filename]
+
+                # Invoke cobra, and aggregate its output
+                error_count += invoke_cobra(arguments, args.verbose)
+                combine_output(input_filename, combined_output_filename, first=(i==0), verbose=args.verbose)
+
+        # Otherwise, run Cobra on this group of files
+        else:
+            arguments = cmd
+            for include_dir in (args.include_dirs or []):
+                cmd.extend(['-I' + include_dir])
+            arguments.extend(files_in_group)
+
+            # Invoke cobra, and aggregate its output
+            error_count += invoke_cobra(arguments, args.verbose)
+            combine_output(input_filename, combined_output_filename, first=(i==0), verbose=args.verbose)
+    
+    # Move the temporary combined output into the expected final location
+    os.rename(combined_output_filename, input_filename)
+
+    # Output a summary
+    if not error_count:
+        print('No problems found')
+        rc = 0
+    else:
+        print('%d errors' % error_count, file=sys.stderr)
+        rc = 1
 
     if (args.xunit_file or args.sarif_file) and input_filename is None:
         # When using the CWE ruleset, Cobra doesn't generate an output file
@@ -223,14 +241,26 @@ def main(argv=sys.argv[1:]):
         else:
             # Generate the xunit output file
             if args.xunit_file:
-                write_output_file(input_filename, '-junit', args.xunit_file)
+                write_output_file(input_filename, ['-junit'], args.xunit_file)
 
             # Generate the SARIF output file
             if args.sarif_file:
-                write_output_file(input_filename, '-sarif', args.sarif_file)
+                write_output_file(input_filename, ['-sarif','-a'], args.sarif_file)
 
     return rc
 
+def combine_output(input_filename, output_filename, first=False, verbose=False):
+    '''
+    Appends the contents of `input_filename` into `output_filename`. Used to aggregate Cobra output.
+    '''
+    if verbose:
+        print(f"Appending {input_filename} to {output_filename}")
+    with open(output_filename, "a") as out:
+        with open(input_filename, "r") as in_f:
+            # If this isn't the first file, we need to prepend a `,` to form valid json
+            if not first: out.write(",")
+
+            out.write(in_f.read())
 
 def find_executable(file_name, additional_paths=None):
     path = None
@@ -372,10 +402,10 @@ def get_input_filenames(groups):
     return filenames
 
 
-def write_output_file(input_filename, conversion_flag, output_filename):
-    folder_name = os.path.basename(os.path.dirname(output_filename))
+def write_output_file(input_filename, flags, output_filename):
+
     try:
-        cmd = ['json_convert', conversion_flag, '-f', input_filename]
+        cmd = ['json_convert', '-f', input_filename] + flags
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         cmd_output = p.communicate()[0]
         with open(output_filename, 'w') as f:
