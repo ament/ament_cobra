@@ -4,7 +4,7 @@
   <name>ament_cobra</name>
   <version>0.0.1</version>
   <description>ament_lint wrapper for the Cobra static analyzer.</description>
-  <maintainer email="michael.jeronimo@openrobotics.org">Michael Jeronimo</maintainer>
+  <maintainer email="ivan.perezdominguez@nasa.gov">Ivan Perez</maintainer>
   <license>Apache License 2.0</license>
 
   <depend>cobra_vendor</depend>

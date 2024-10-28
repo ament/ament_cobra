@@ -4,7 +4,7 @@
   <name>cobra_vendor</name>
   <version>0.1.0</version>
   <description>CMake shim providing the cobra project.</description>
-  <maintainer email="steven@openrobotics.org">Steven! Ragnarök</maintainer>
+  <maintainer email="ivan.perezdominguez@nasa.gov">Ivan Perez</maintainer>
   <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
