@@ -10,8 +10,8 @@ if(DEFINED CMAKE_BUILD_TYPE)
 endif()
 
 # The Cobra source code version/revision numbers
-set(VER "4.1")
-set(REV "09a5e421bfa7b84d5fca651d3ae3a93e7c30389f")
+set(VER "4.8")
+set(REV "5af7230ecf29a6c9b46ff1bdd60c5d9e51d032db")
 
 include(ExternalProject)
 ExternalProject_Add(cobra-${VER}
@@ -22,19 +22,10 @@ ExternalProject_Add(cobra-${VER}
   BUILD_IN_SOURCE TRUE
   CONFIGURE_COMMAND ""
   BUILD_COMMAND
-  ${CMAKE_COMMAND} -E chdir <SOURCE_DIR>/src make linux && ${CMAKE_COMMAND} -E chdir <SOURCE_DIR>/src_app make all LDFLAGS=-Wl,c.ar\ -pthread
+  ${CMAKE_COMMAND} -E chdir <SOURCE_DIR>/src make all && ${CMAKE_COMMAND} -E chdir <SOURCE_DIR>/src_app make all LDFLAGS=-Wl,c.ar\ -pthread
   INSTALL_COMMAND
-  ${CMAKE_COMMAND} -E chdir <SOURCE_DIR>/src make install_linux MAN=<SOURCE_DIR>/src_app LDFLAGS=-Wl,c.ar\ -pthread && ${CMAKE_COMMAND} -E chdir <SOURCE_DIR>/src_app make install_linux LDFLAGS=-Wl,c.ar\ -pthread
+  ${CMAKE_COMMAND} -E chdir <SOURCE_DIR>/src sudo make install MAN=<SOURCE_DIR>/src_app LDFLAGS=-Wl,c.ar\ -pthread && ${CMAKE_COMMAND} -E chdir <SOURCE_DIR>/src_app sudo make install LDFLAGS=-Wl,c.ar\ -pthread
 )
-
-install(PROGRAMS
-  ${CMAKE_CURRENT_BINARY_DIR}/cobra-${VER}/src/cobra-${VER}/bin_linux/cobra
-  ${CMAKE_CURRENT_BINARY_DIR}/cobra-${VER}/src/cobra-${VER}/bin_linux/cwe
-  ${CMAKE_CURRENT_BINARY_DIR}/cobra-${VER}/src/cobra-${VER}/bin_linux/json_convert
-  ${CMAKE_CURRENT_BINARY_DIR}/cobra-${VER}/src/cobra-${VER}/bin_linux/scope_check
-  ${CMAKE_CURRENT_BINARY_DIR}/cobra-${VER}/src/cobra-${VER}/bin_linux/find_taint
-  ${CMAKE_CURRENT_BINARY_DIR}/cobra-${VER}/src/cobra-${VER}/bin_linux/window.tcl
-  DESTINATION bin)
 
 install(DIRECTORY 
   ${CMAKE_CURRENT_BINARY_DIR}/cobra-${VER}/src/cobra-${VER}/rules
