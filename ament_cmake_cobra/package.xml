@@ -6,7 +6,7 @@
   <description>
     The CMake API for ament_cobra to perform static code analysis on C/C++ code using cobra.
   </description>
-  <maintainer email="michael.jeronimo@openrobotics.org">Michael Jeronimo</maintainer>
+  <maintainer email="ivan.perezdominguez@nasa.gov">Ivan Perez</maintainer>
   <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake_core</buildtool_depend>
