@@ -22,9 +22,9 @@ ExternalProject_Add(cobra-${VER}
   BUILD_IN_SOURCE TRUE
   CONFIGURE_COMMAND ""
   BUILD_COMMAND
-  ${CMAKE_COMMAND} -E chdir <SOURCE_DIR>/src make linux && ${CMAKE_COMMAND} -E chdir <SOURCE_DIR>/src_app make all
+  ${CMAKE_COMMAND} -E chdir <SOURCE_DIR>/src make linux && ${CMAKE_COMMAND} -E chdir <SOURCE_DIR>/src_app make all LDFLAGS=-Wl,c.ar\ -pthread
   INSTALL_COMMAND
-  ${CMAKE_COMMAND} -E chdir <SOURCE_DIR>/src make install_linux MAN=<SOURCE_DIR>/src_app && ${CMAKE_COMMAND} -E chdir <SOURCE_DIR>/src_app make install_linux
+  ${CMAKE_COMMAND} -E chdir <SOURCE_DIR>/src make install_linux MAN=<SOURCE_DIR>/src_app LDFLAGS=-Wl,c.ar\ -pthread && ${CMAKE_COMMAND} -E chdir <SOURCE_DIR>/src_app make install_linux LDFLAGS=-Wl,c.ar\ -pthread
 )
 
 install(PROGRAMS
