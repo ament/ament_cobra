@@ -64,9 +64,23 @@ if(_source_files)
 
   set(_compile_commands "${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json")
 
+  # list of valid cobra rulesets taken from `main.py`
+  set(_valid_cobra_rulesets "basic" "cwe" "p10" "jpl" "misra2012" "C++/autosar")
+  # allow the ruleset to be configured via a CMake variable, but default to C++/autosar
+  if(NOT DEFINED ament_cmake_cobra_RULESET)
+    set(ament_cmake_cobra_RULESET "C++/autosar")
+    message(STATUS "Defaulted to cobra ruleset: ${ament_cmake_cobra_RULESET}")
+  elseif(NOT ament_cmake_cobra_RULESET IN_LIST _valid_cobra_rulesets)
+    # the user set an invalid ruleset
+    message(FATAL_ERROR "Invalid cobra ruleset '${ament_cmake_cobra_RULESET}'. "
+      "Valid options: ${_valid_cobra_rulesets}")
+  else()
+    message(STATUS "Configured cobra ruleset: ${ament_cmake_cobra_RULESET}")
+  endif()
+
   message(STATUS "Configured cobra include dirs: ${_all_include_dirs}")
   message(STATUS "Configured cobra exclude dirs and/or files: ${_all_exclude}")
 
-  ament_cobra(TESTNAME "cobra-autosar" RULESET "C++/autosar" INCLUDE_DIRS ${_all_include_dirs}
+  ament_cobra(TESTNAME "cobra" RULESET "${ament_cmake_cobra_RULESET}" INCLUDE_DIRS ${_all_include_dirs}
     EXCLUDE ${_all_exclude} COMPILE_CMDS ${_compile_commands})
 endif()

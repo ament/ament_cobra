@@ -21,7 +21,7 @@
 #
 # :param TESTNAME: the name of the test, default: "cobra"
 # :type TESTNAME: string
-# :param RULESET: the rule set to use (basic, cwe, p10, jpl, or misra2012)
+# :param RULESET: the rule set to use; must be one of ['basic', 'cwe', 'p10', 'jpl', 'misra2012', 'C++/autosar']
 # :type RULESET: string
 # :param INCLUDE_DIRS: an optional list of include paths for cobra
 # :type INCLUDE_DIRS: list
